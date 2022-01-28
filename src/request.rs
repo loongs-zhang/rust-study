@@ -19,12 +19,33 @@ pub async fn test() {
     request("13".to_string()),
     request("14".to_string()),
     request("15".to_string()),
-    request("16".to_string()),);
+    request("16".to_string()),
+    request("17".to_string()),
+    request("18".to_string()),
+    request("19".to_string()),
+    request("20".to_string()),
+    request("21".to_string()),
+    request("22".to_string()),
+    request("23".to_string()),
+    request("24".to_string()),
+    request("25".to_string()),
+    request("26".to_string()),
+    request("27".to_string()),
+    request("28".to_string()),
+    request("29".to_string()),
+    request("30".to_string()),
+    request("31".to_string()),
+    request("32".to_string()),);
+    // cost:4000+ms, therefore, it is concluded that
+    // all stackless coroutines are fake coroutines,
+    // and rust is no exception, and the stack coroutine
+    // represented by go is the real coroutine
     println!("cost:{:?}ms", current_time_millis() - start);
 }
 
 pub async fn request(id: String) -> Result<(), Box<dyn std::error::Error>> {
-    let resp = reqwest::get("https://httpbin.org/ip")
+    // see https://github.com/dragon-zhang/kotlin-study/blob/master/provider/src/main/kotlin/com/example/demo/TestController.kt
+    let resp = reqwest::get("http://127.0.0.1:8081/rust")
         .await?
         .json::<HashMap<String, String>>()
         .await?;
