@@ -2,7 +2,8 @@ pub fn ownership() {
     pointer_move();
     println!("{}", reference(&mut String::from("haha")));
     borrow_twice();
-    // overhang();
+    mut_and_unmut();
+    // dangling_reference();
     delay_init();
 }
 
@@ -27,7 +28,14 @@ fn borrow_twice() {
     let r2 = &mut s;
 }
 
-// fn overhang() -> &str {
+fn mut_and_unmut() {
+    let mut s = String::from("hello");
+    //现在可以同时声明可变引用和不可变引用了
+    let r1 = &s;
+    let r2 = &mut s;
+}
+
+// fn dangling_reference() -> &str {
 //     let s = String::from("hello");
 //     //返回指向了一个无效的String引用
 //     return &s
