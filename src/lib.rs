@@ -43,3 +43,6 @@ pub fn call_simple_module() {
     crate::simple_module::host::seat();
     crate::simple_module::server::server();
 }
+
+//complex module
+pub mod complex_module;
