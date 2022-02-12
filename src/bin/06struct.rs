@@ -5,7 +5,7 @@ struct User<'a> {
 }
 
 impl User<'static> {
-    pub fn new() -> User<'static> {
+    pub fn new() -> Self {
         User {
             account: "",
             password: "",
