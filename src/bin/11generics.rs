@@ -1,5 +1,6 @@
 use std::cmp::PartialOrd;
 
+//编译时，rust编译器会把T替换为具体类型，因此使用泛型没有任何性能损耗
 fn largest<T: PartialOrd + Copy>(list: &[T]) -> T {
     let mut largest = list[0];
     for &item in list.iter() {
