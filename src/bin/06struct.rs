@@ -33,12 +33,6 @@ impl User<'static> {
 //tuple struct
 struct Color(i32, i32, i32);
 
-fn show_struct() {
-    create_user();
-    show_user();
-    from_user();
-}
-
 fn create_user() {
     let mut u = User::new();
     u.set_account("account")
@@ -65,4 +59,10 @@ fn from_user() {
         ..user1
     };
     println!("{:#?}", user2);
+}
+
+fn main() {
+    create_user();
+    show_user();
+    from_user();
 }

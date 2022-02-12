@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
+
 use rand::Rng;
 
-pub fn guess() {
+fn main() {
     println!("Guess the number!");
 
     let secret_number = rand::thread_rng().gen_range(1..101);
@@ -20,7 +21,7 @@ pub fn guess() {
                 //非法输入，需要重新输入
                 println!("Input must be a number!");
                 continue;
-            },
+            }
         };
         println!("You guessed: {}", guess);
 

@@ -1,4 +1,4 @@
-pub fn if_else() {
+fn main() {
     let number = 6;
     if number % 4 == 0 {
         println!("number is divisible by 4");

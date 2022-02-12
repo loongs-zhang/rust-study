@@ -1,12 +1,3 @@
-pub fn ownership() {
-    pointer_move();
-    println!("{}", reference(&mut String::from("haha")));
-    borrow_twice();
-    mut_and_unmut();
-    // dangling_reference();
-    delay_init();
-}
-
 fn pointer_move() {
     let s1 = String::from("hello");
     let s2 = s1;
@@ -48,4 +39,13 @@ fn delay_init() {
         r3 = &s;
     }
     println!("{}", r3);
+}
+
+fn main() {
+    pointer_move();
+    println!("{}", reference(&mut String::from("haha")));
+    borrow_twice();
+    mut_and_unmut();
+    // dangling_reference();
+    delay_init();
 }

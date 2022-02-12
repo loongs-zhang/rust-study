@@ -1,9 +1,3 @@
-pub fn round() {
-    round_loop();
-    round_while();
-    round_for();
-}
-
 fn round_loop() {
     let mut counter = 0;
     let result = loop {
@@ -29,4 +23,10 @@ fn round_for() {
         counter += 1;
     }
     println!("for The result is {}", counter * 2);
+}
+
+fn main() {
+    round_loop();
+    round_while();
+    round_for();
 }
