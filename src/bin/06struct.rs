@@ -41,7 +41,7 @@ fn create_user() {
 }
 
 fn show_user() {
-    //可以不按照struce的顺序来声明
+    //可以不按照struct的顺序来声明
     let user = User {
         password: "123456",
         account: "admin",
@@ -59,6 +59,11 @@ fn from_user() {
         ..user1
     };
     println!("{:#?}", user2);
+}
+
+struct InnerUser<'a> {
+    //用组合来代替继承
+    user: User<'a>,
 }
 
 fn main() {
