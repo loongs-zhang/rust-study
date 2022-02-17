@@ -26,26 +26,9 @@ fn mut_and_unmut() {
     let r2 = &mut s;
 }
 
-// fn dangling_reference() -> &str {
-//     let s = String::from("hello");
-//     //返回指向了一个无效的String引用
-//     return &s
-// }
-
-fn delay_init() {
-    let s = String::from("hello");
-    let r3;
-    {
-        r3 = &s;
-    }
-    println!("{}", r3);
-}
-
 fn main() {
     pointer_move();
     println!("{}", reference(&mut String::from("haha")));
     borrow_twice();
     mut_and_unmut();
-    // dangling_reference();
-    delay_init();
 }

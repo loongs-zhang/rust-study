@@ -4,7 +4,7 @@ struct User<'a> {
     password: &'a str,
 }
 
-impl User<'static> {
+impl<'a> User<'a> {
     pub fn new() -> Self {
         User {
             account: "",
@@ -13,18 +13,18 @@ impl User<'static> {
     }
 }
 
-impl User<'static> {
+impl<'a> User<'a> {
     pub fn get_account(&self) -> &str {
         self.account
     }
-    pub fn set_account(&mut self, new_account: &'static str) -> &mut User<'static> {
+    pub fn set_account(&mut self, new_account: &'a str) -> &mut User<'a> {
         self.account = new_account;
         self
     }
     pub fn get_password(&self) -> &str {
         self.password
     }
-    pub fn set_password(&mut self, new_password: &'static str) -> &mut User<'static> {
+    pub fn set_password(&mut self, new_password: &'a str) -> &mut User<'a> {
         self.password = new_password;
         self
     }

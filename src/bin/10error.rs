@@ -2,14 +2,14 @@ use std::fs::File;
 use std::io::{Error, Read};
 
 //可恢复的错误
-fn recoverable(i: i8) -> Result<String, &'static str> {
+fn recoverable<'a>(i: i8) -> Result<String, &'a str> {
     if i > 0 {
         return Result::Ok(i.to_string());
     }
     return Result::Err("error");
 }
 
-fn spread_error(i: i8) -> Result<String, &'static str> {
+fn spread_error<'a>(i: i8) -> Result<String, &'a str> {
     let f = File::open("test.txt");
     let mut f = match f {
         Ok(file) => file,
@@ -22,7 +22,7 @@ fn spread_error(i: i8) -> Result<String, &'static str> {
     };
 }
 
-fn spread_error_cannot_simplify(i: i8) -> Result<String, &'static str> {
+fn spread_error_cannot_simplify<'a>(i: i8) -> Result<String, &'a str> {
     let f = File::open("test.txt");
     let mut f = match f {
         Ok(file) => file,
