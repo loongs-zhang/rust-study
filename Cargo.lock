@@ -392,6 +392,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "module1"
+version = "0.1.0"
+dependencies = [
+ "module2",
+]
+
+[[package]]
+name = "module2"
+version = "0.1.0"
+
+[[package]]
 name = "native-tls"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
