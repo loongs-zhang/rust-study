@@ -3,7 +3,6 @@ use std::error::Error;
 
 struct Config<'a> {
     query: &'a str,
-    query_lowercase: String,
     file_name: &'a str,
     sensitive: bool,
 }
@@ -14,43 +13,56 @@ impl<'a> Config<'a> {
             return Err("args length at least be 3");
         }
         let query = args[1].as_str();
-        let query_lowercase = query.to_lowercase();
         let file_name = args[2].as_str();
+        //默认大小写不敏感，即不加环境变量
         let sensitive = env::var("SENSITIVE").is_ok();
-        return Ok(Config { query, query_lowercase, file_name, sensitive });
+        return Ok(Config { query, file_name, sensitive });
     }
 
     fn get_query(&self) -> &str {
-        if self.sensitive {
-            return self.query;
-        }
-        return self.query_lowercase.as_str();
+        return self.query;
     }
 
     fn get_file_name(&self) -> &str {
         return self.file_name;
     }
+
+    fn is_sensitive(&self) -> bool {
+        return self.sensitive;
+    }
 }
 
 fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let content = fs::read_to_string(config.get_file_name())?;
-    for result in search(config.get_query(), &content.as_str()) {
+    for result in search(config.get_query(), &content.as_str(),
+                         config.is_sensitive()) {
         println!("{}", result);
     }
     Ok(())
 }
 
-fn search<'a>(query: &str, content: &'a &str) -> Vec<&'a str> {
+fn search<'a>(query: &str, content: &'a &str, sensitive: bool) -> Vec<&'a str> {
     let mut result = Vec::new();
-    for line in content.lines() {
-        if line.contains(&query) {
-            result.push(line);
+    if sensitive {
+        //大小写敏感
+        for line in content.lines() {
+            if line.contains(query) {
+                result.push(line);
+            }
+        }
+    } else {
+        //默认大小写不敏感
+        let query = query.to_lowercase();
+        for line in content.lines() {
+            if line.to_lowercase().contains(&query) {
+                result.push(line);
+            }
         }
     }
     return result;
 }
 
-//cargo run --bin grep test 1234
+//SENSITIVE=0 cargo run --bin grep To poem.txt
 fn main() {
     let args: Vec<String> = env::args().collect();
     let config = Config::new(&args).unwrap_or_else(|msg| {
