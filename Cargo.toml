@@ -5,6 +5,13 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[profile.dev]
+opt-level = 0
+
+[profile.release]
+# opt-level越大，优化越多，编译越慢
+opt-level = 3
+
 [dependencies]
 rand = "0.8.4"
 reqwest = { version = "0.11.9", features = ["json"] }
