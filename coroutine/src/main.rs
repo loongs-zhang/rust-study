@@ -4,7 +4,7 @@ use context::{Context, Transfer};
 // This method will always `resume()` immediately back to the
 // previous `Context` with a `data` value incremented by one starting at 0.
 // You could thus describe this method as a "natural number generator".
-extern "C" fn context_function(mut t: Transfer) -> ! {
+pub extern "C" fn context_function(mut t: Transfer) -> ! {
     loop {
         let i = t.data;
         print!("Resuming {} => ", i);
@@ -14,7 +14,7 @@ extern "C" fn context_function(mut t: Transfer) -> ! {
 
 fn main() {
     // Allocate some stack.
-    let stack = ProtectedFixedSizeStack::default();
+    let stack = ProtectedFixedSizeStack::new(2048).unwrap();
     // Allocate a Context on the stack.
     let mut t = Transfer::new(unsafe { Context::new(&stack, context_function) }, 0);
     // Yield 10 times to `context_function()`.
