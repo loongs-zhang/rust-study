@@ -16,6 +16,7 @@ opt-level = 3
 rand = "0.8.4"
 reqwest = { version = "0.11.9", features = ["json"] }
 tokio = { version = "1.16.1", features = ["full"] }
+libc = "0.2.119"
 
 [workspace]
 # 只有members的依赖才是相互隔离的，因此members的子成员才算真正的模块
