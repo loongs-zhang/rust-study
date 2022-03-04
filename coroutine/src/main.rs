@@ -12,7 +12,8 @@ pub extern "C" fn context_function(mut t: Transfer) -> ! {
     }
 }
 
-//可以尝试用libc的pthread来写上下文加载
+//可以尝试用libc的pthread来写协程上下文加载
+//或者就是直接走汇编：https://github.com/torvalds/linux/blob/v5.2/arch/x86/entry/entry_64.S#L282
 fn main() {
     // Allocate some stack.
     let stack = ProtectedFixedSizeStack::new(2048).unwrap();
