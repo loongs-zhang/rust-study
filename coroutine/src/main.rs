@@ -12,6 +12,7 @@ pub extern "C" fn context_function(mut t: Transfer) -> ! {
     }
 }
 
+//可以尝试用libc的pthread来写上下文加载
 fn main() {
     // Allocate some stack.
     let stack = ProtectedFixedSizeStack::new(2048).unwrap();
