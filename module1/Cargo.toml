@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 module2 = { path = "../module2" }
 #当module2跟module1有相同依赖时，cargo会自动统一这些依赖的版本
+libc = "0.2.119"
