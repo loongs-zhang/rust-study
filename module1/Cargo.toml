@@ -9,3 +9,12 @@ edition = "2021"
 module2 = { path = "../module2" }
 #当module2跟module1有相同依赖时，cargo会自动统一这些依赖的版本
 libc = "0.2.119"
+
+[target."cfg(windows)".dependencies.kernel32-sys]
+version = "0.2.2"
+[target."cfg(windows)".dependencies.winapi]
+version = "0.2.2"
+
+[build-dependencies]
+cc = "1.0.73"
+rustversion = "1.0.6"

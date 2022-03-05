@@ -9,7 +9,7 @@ use std::os::raw::c_void;
 use crate::stack::error::StackError;
 
 mod error;
-mod system;
+pub mod system;
 
 /// Represents any kind of stack memory.
 ///
