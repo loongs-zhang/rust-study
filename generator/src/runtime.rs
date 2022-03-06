@@ -19,7 +19,6 @@ thread_local!(
 );
 
 /// yield panic error types
-#[allow(dead_code)]
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Error {
     /// Cancel panic

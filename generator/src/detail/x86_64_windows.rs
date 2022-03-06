@@ -3,7 +3,6 @@ use crate::reg_context::InitFn;
 use crate::stack::Stack;
 
 #[inline]
-#[allow(dead_code)]
 pub fn prefetch(data: *const usize) {
     unsafe { crate::detail::prefetch(data) }
 }

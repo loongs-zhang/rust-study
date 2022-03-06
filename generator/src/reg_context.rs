@@ -23,7 +23,6 @@ impl RegContext {
     }
 
     /// Create a new context
-    #[allow(dead_code)]
     pub fn new(init: InitFn, arg: usize, start: *mut usize, stack: &Stack) -> RegContext {
         let mut ctx = RegContext::empty();
         ctx.init_with(init, arg, start, stack);
@@ -51,7 +50,6 @@ impl RegContext {
 
     /// Load the context and switch. This function will never return.
     #[inline]
-    #[allow(dead_code)]
     pub fn load(to_context: &RegContext) {
         let mut cur = Registers::new();
         let regs: &Registers = &to_context.regs;

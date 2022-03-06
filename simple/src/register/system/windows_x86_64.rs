@@ -3,7 +3,6 @@ use crate::register::system::{align_down, bootstrap_green_task, mut_offset};
 use crate::stack::Stack;
 
 #[inline]
-#[allow(dead_code)]
 pub fn prefetch(data: *const usize) {
     unsafe { crate::register::system::prefetch(data) }
 }
