@@ -168,6 +168,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "generator"
+version = "0.1.0"
+dependencies = [
+ "cc",
+ "kernel32-sys",
+ "libc",
+ "rustversion",
+ "winapi 0.2.8",
+]
+
+[[package]]
 name = "getrandom"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
