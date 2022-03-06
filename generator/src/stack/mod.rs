@@ -42,7 +42,7 @@ pub struct StackBox<T> {
 
 impl<T> StackBox<T> {
     /// create uninit stack box
-    fn new_unint(stack: &mut Stack, need_drop: usize) -> MaybeUninit<Self> {
+    fn new_uninit(stack: &mut Stack, need_drop: usize) -> MaybeUninit<Self> {
         let offset = unsafe { &mut *stack.get_offset() };
         // alloc the data
         let layout = std::alloc::Layout::new::<T>();
@@ -152,7 +152,7 @@ impl<F: FnOnce()> StackBox<F> {
     /// create a functor on the stack
     pub(crate) fn new_fn_once(stack: &mut Stack, data: F) -> Func {
         unsafe {
-            let mut d = Self::new_unint(stack, 0).assume_init();
+            let mut d = Self::new_uninit(stack, 0).assume_init();
             d.init(data);
             let header = d.get_header();
             let f = Func {
@@ -385,7 +385,7 @@ impl Stack {
     /// alloc buffer on this stack
     pub fn alloc_uninit_box<T>(&mut self) -> MaybeUninit<StackBox<T>> {
         // the first obj should set need drop to non zero
-        StackBox::<T>::new_unint(self, 1)
+        StackBox::<T>::new_uninit(self, 1)
     }
 
     // get offset
