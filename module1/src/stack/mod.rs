@@ -1,14 +1,17 @@
+use std::mem::MaybeUninit;
 // Copyright 2016 coroutine-rs Developers
 //
 // Licensed under the Apache License, Version 2.0, <LICENSE-APACHE or
 // http://apache.org/licenses/LICENSE-2.0> or the MIT license <LICENSE-MIT or
 // http://opensource.org/licenses/MIT>, at your option. This file may not be
 // copied, modified, or distributed except according to those terms.
-use std::ops::Deref;
 use std::os::raw::c_void;
+use std::ptr;
 use crate::stack::error::StackError;
+use crate::stack::frame::StackBox;
 
 mod error;
+pub mod frame;
 mod system;
 
 /// Represents any kind of stack memory.
@@ -23,12 +26,56 @@ pub struct Stack {
 }
 
 impl Stack {
+    /// Allocates a new stack of `size`.
+    /// If protected=false, a very simple and straightforward implementation.
+    ///
+    /// Allocates stack space using virtual memory, whose pages will
+    /// only be mapped to physical memory if they are used.
+    ///
+    /// If protected=true, a more secure, but slightly slower.
+    ///
+    /// Allocates stack space using virtual memory, whose pages will
+    /// only be mapped to physical memory if they are used.
+    ///
+    /// The additional guard page is made protected and inaccessible.
+    /// Now if a stack overflow occurs it should (hopefully) hit this guard page and
+    /// cause a segmentation fault instead letting the memory being overwritten silently.
+    pub fn new(mut size: usize, protected: bool) -> Result<Stack, StackError> {
+        let page_size = system::page_size();
+        let min_stack_size = system::min_stack_size();
+        let max_stack_size = system::max_stack_size();
+        let add_shift = if protected { 1 } else { 0 };
+        let add = page_size << add_shift;
+
+        if size < min_stack_size {
+            size = min_stack_size;
+        }
+
+        size = (size - 1) & !(page_size - 1);
+
+        if let Some(size) = size.checked_add(add) {
+            if size <= max_stack_size {
+                let mut ret = unsafe { system::allocate_stack(size) };
+
+                if protected {
+                    if let Ok(stack) = ret {
+                        ret = unsafe { system::protect_stack(&stack) };
+                    }
+                }
+
+                return ret.map_err(StackError::IoError);
+            }
+        }
+
+        Err(StackError::ExceedsMaximumSize(max_stack_size - add))
+    }
+
     /// Creates a (non-owning) representation of some stack memory.
     ///
     /// It is unsafe because it is your reponsibility to make sure that `top` and `buttom` are valid
     /// addresses.
     #[inline]
-    pub unsafe fn new(protected: bool, top: *mut c_void, bottom: *mut c_void) -> Stack {
+    pub(crate) unsafe fn create(protected: bool, top: *mut c_void, bottom: *mut c_void) -> Stack {
         debug_assert!(top >= bottom);
         Stack {
             protected,
@@ -77,35 +124,72 @@ impl Stack {
         system::default_stack_size()
     }
 
-    /// Allocates a new stack of `size`.
-    fn allocate(mut size: usize, protected: bool) -> Result<Stack, StackError> {
-        let page_size = system::page_size();
-        let min_stack_size = system::min_stack_size();
-        let max_stack_size = system::max_stack_size();
-        let add_shift = if protected { 1 } else { 0 };
-        let add = page_size << add_shift;
+    // get offset
+    pub fn get_offset(&self) -> *mut usize {
+        unsafe { (self.top as *mut usize).offset(-1) }
+    }
 
-        if size < min_stack_size {
-            size = min_stack_size;
+    /// Point to the high end of the allocated stack
+    pub fn end(&self) -> *mut usize {
+        let offset = self.get_offset();
+        unsafe { (self.top as *mut usize).offset(0 - *offset as isize) }
+    }
+
+    fn shadow_clone(&self) -> Self {
+        Stack {
+            protected: self.protected,
+            top: self.top,
+            bottom: self.bottom,
         }
+    }
 
-        size = (size - 1) & !(page_size - 1);
+    // dealloc the stack
+    fn drop_stack(&self) {
+        if self.len() == 0 {
+            return;
+        }
+        let page_size = system::page_size();
+        let guard = if self.protected {
+            (self.bottom() as usize - page_size) as *mut c_void
+        } else {
+            self.bottom()
+        };
+        let size_with_guard = if self.protected {
+            self.len() + page_size
+        } else {
+            self.len()
+        };
+        unsafe {
+            system::deallocate_stack(guard, size_with_guard);
+        }
+    }
 
-        if let Some(size) = size.checked_add(add) {
-            if size <= max_stack_size {
-                let mut ret = unsafe { system::allocate_stack(size) };
+    /// alloc buffer on this stack
+    pub fn alloc_uninit_box<T>(&mut self) -> MaybeUninit<StackBox<T>> {
+        // the first obj should set need drop to non zero
+        StackBox::<T>::new_unit(self, 1)
+    }
 
-                if protected {
-                    if let Ok(stack) = ret {
-                        ret = unsafe { system::protect_stack(&stack) };
-                    }
-                }
+    /// get the stack cap
+    #[inline]
+    pub fn size(&self) -> usize {
+        self.len() / std::mem::size_of::<usize>()
+    }
 
-                return ret.map_err(StackError::IoError);
+    /// get used stack size
+    pub fn get_used_size(&self) -> usize {
+        let mut offset: usize = 0;
+        unsafe {
+            let mut magic: usize = 0xEE;
+            ptr::write_bytes(&mut magic, 0xEE, 1);
+            let mut ptr = self.bottom() as *mut usize;
+            while *ptr == magic {
+                offset += 1;
+                ptr = ptr.offset(1);
             }
         }
-
-        Err(StackError::ExceedsMaximumSize(max_stack_size - add))
+        let cap = self.size();
+        cap - offset
     }
 
     /// expand stack size
@@ -148,98 +232,14 @@ impl Stack {
     }
 }
 
+impl Default for Stack {
+    fn default() -> Stack {
+        Stack::new(Stack::default_size(), true)
+            .unwrap_or_else(|err| panic!("Failed to allocate Stack with {:?}", err))
+    }
+}
+
 unsafe impl Send for Stack {}
-
-/// A very simple and straightforward implementation of `Stack`.
-///
-/// Allocates stack space using virtual memory, whose pages will
-/// only be mapped to physical memory if they are used.
-///
-/// _As a general rule it is recommended to use `ProtectedFixedSizeStack` instead._
-#[derive(Debug)]
-pub struct FixedSizeStack(Stack);
-
-impl FixedSizeStack {
-    /// Allocates a new stack of **at least** `size` bytes.
-    ///
-    /// `size` is rounded up to a multiple of the size of a memory page.
-    pub fn new(size: usize) -> Result<FixedSizeStack, StackError> {
-        Stack::allocate(size, false).map(FixedSizeStack)
-    }
-}
-
-impl Deref for FixedSizeStack {
-    type Target = Stack;
-
-    fn deref(&self) -> &Stack {
-        &self.0
-    }
-}
-
-impl Default for FixedSizeStack {
-    fn default() -> FixedSizeStack {
-        FixedSizeStack::new(Stack::default_size())
-            .unwrap_or_else(|err| panic!("Failed to allocate FixedSizeStack with {:?}", err))
-    }
-}
-
-impl Drop for FixedSizeStack {
-    fn drop(&mut self) {
-        unsafe {
-            system::deallocate_stack(self.0.bottom(), self.0.len());
-        }
-    }
-}
-
-/// A more secure, but slightly slower version of `FixedSizeStack`.
-///
-/// Allocates stack space using virtual memory, whose pages will
-/// only be mapped to physical memory if they are used.
-///
-/// The additional guard page is made protected and inaccessible.
-/// Now if a stack overflow occurs it should (hopefully) hit this guard page and
-/// cause a segmentation fault instead letting the memory being overwritten silently.
-///
-/// _As a general rule it is recommended to use **this** struct to create stack memory._
-#[derive(Debug)]
-pub struct ProtectedFixedSizeStack(Stack);
-
-impl ProtectedFixedSizeStack {
-    /// Allocates a new stack of **at least** `size` bytes + one additional guard page.
-    ///
-    /// `size` is rounded up to a multiple of the size of a memory page and
-    /// does not include the size of the guard page itself.
-    pub fn new(size: usize) -> Result<ProtectedFixedSizeStack, StackError> {
-        Stack::allocate(size, true).map(ProtectedFixedSizeStack)
-    }
-}
-
-impl Deref for ProtectedFixedSizeStack {
-    type Target = Stack;
-
-    fn deref(&self) -> &Stack {
-        &self.0
-    }
-}
-
-impl Default for ProtectedFixedSizeStack {
-    fn default() -> ProtectedFixedSizeStack {
-        ProtectedFixedSizeStack::new(Stack::default_size()).unwrap_or_else(|err| {
-            panic!("Failed to allocate ProtectedFixedSizeStack with {:?}", err)
-        })
-    }
-}
-
-impl Drop for ProtectedFixedSizeStack {
-    fn drop(&mut self) {
-        let page_size = system::page_size();
-        let guard = (self.0.bottom() as usize - page_size) as *mut c_void;
-        let size_with_guard = self.0.len() + page_size;
-        unsafe {
-            system::deallocate_stack(guard, size_with_guard);
-        }
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -251,12 +251,12 @@ mod tests {
 
     #[test]
     fn stack_size_too_small() {
-        let stack = FixedSizeStack::new(0).unwrap();
+        let stack = Stack::new(0, false).unwrap();
         assert_eq!(stack.len(), system::min_stack_size());
 
         unsafe { write_bytes(stack.bottom() as *mut u8, 0x1d, stack.len()) };
 
-        let stack = ProtectedFixedSizeStack::new(0).unwrap();
+        let stack = Stack::new(0, true).unwrap();
         assert_eq!(stack.len(), system::min_stack_size());
 
         unsafe { write_bytes(stack.bottom() as *mut u8, 0x1d, stack.len()) };
@@ -265,15 +265,13 @@ mod tests {
     #[test]
     fn stack_size_too_large() {
         let stack_size = system::max_stack_size() & !(system::page_size() - 1);
-
-        match FixedSizeStack::new(stack_size) {
+        match Stack::new(stack_size, false) {
             Err(StackError::ExceedsMaximumSize(..)) => panic!(),
             _ => {}
         }
 
         let stack_size = stack_size + 1;
-
-        match FixedSizeStack::new(stack_size) {
+        match Stack::new(stack_size, false) {
             Err(StackError::ExceedsMaximumSize(..)) => {}
             _ => panic!(),
         }

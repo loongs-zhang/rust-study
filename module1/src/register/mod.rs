@@ -67,7 +67,7 @@ impl RegisterContext {
 mod test {
     use std::mem::transmute;
     use crate::register::RegisterContext;
-    use crate::stack::ProtectedFixedSizeStack;
+    use crate::stack::Stack;
 
     const MIN_STACK: usize = 1024;
 
@@ -92,7 +92,7 @@ mod test {
             }
         }
 
-        let stk = ProtectedFixedSizeStack::new(MIN_STACK).unwrap();
+        let stk = Stack::new(MIN_STACK, true).unwrap();
         let ctx = RegisterContext::new(
             init_fn,
             unsafe { transmute(&cur) },
