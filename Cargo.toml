@@ -22,6 +22,6 @@ libc = "0.2.119"
 # 只有members的依赖才是相互隔离的，因此members的子成员才算真正的模块
 members = [
     "simple",
-    "module2",
+    "28c_call_rust",
     "coroutine"
 ]
