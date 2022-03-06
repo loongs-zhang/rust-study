@@ -62,7 +62,7 @@ fn main() {
         ("gas", "S")
     };
 
-    let mut path: PathBuf = "src/detail/asm".into();
+    let mut path: PathBuf = "src/register/asm".into();
     let mut config = cc::Build::new();
 
     if is_win_gnu {

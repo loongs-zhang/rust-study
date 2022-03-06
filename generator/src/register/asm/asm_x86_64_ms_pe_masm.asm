@@ -1,10 +1,10 @@
 .code
 
-prefetch_asm PROC FRAME
+prefetch PROC FRAME
     .endprolog
     prefetcht1 [rcx]
     ret
-prefetch_asm ENDP
+prefetch ENDP
 
 
 bootstrap_green_task PROC FRAME

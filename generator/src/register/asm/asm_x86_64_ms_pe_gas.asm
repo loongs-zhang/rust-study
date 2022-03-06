@@ -1,17 +1,17 @@
 .file	"asm_x86_64_ms_pe_gas.asm"
 .text
 .p2align 4,,15
-.globl	prefetch_asm
-.def	prefetch_asm;	.scl	2;	.type	32;	.endef
-.seh_proc	prefetch_asm
-prefetch_asm:
+.globl	prefetch
+.def	prefetch;	.scl	2;	.type	32;	.endef
+.seh_proc	prefetch
+prefetch:
 .seh_endprologue
     prefetcht1 (%rdi)
     ret
 .seh_endproc
 
 .section .drectve
-.ascii " -export:\"prefetch_asm\""
+.ascii " -export:\"prefetch\""
 
 .text
 .p2align 4,,15
