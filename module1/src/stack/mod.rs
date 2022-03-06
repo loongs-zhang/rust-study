@@ -8,10 +8,8 @@ use std::mem::MaybeUninit;
 use std::os::raw::c_void;
 use std::ptr;
 use crate::stack::error::StackError;
-use crate::stack::frame::StackBox;
 
 mod error;
-pub mod frame;
 mod system;
 
 /// Represents any kind of stack memory.
@@ -162,12 +160,6 @@ impl Stack {
         unsafe {
             system::deallocate_stack(guard, size_with_guard);
         }
-    }
-
-    /// alloc buffer on this stack
-    pub fn alloc_uninit_box<T>(&mut self) -> MaybeUninit<StackBox<T>> {
-        // the first obj should set need drop to non zero
-        StackBox::<T>::new_unit(self, 1)
     }
 
     /// get the stack cap
