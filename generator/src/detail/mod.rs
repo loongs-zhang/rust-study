@@ -33,7 +33,14 @@ pub mod asm;
 #[path = "aarch64_unix.rs"]
 pub mod asm;
 
-pub use self::asm::{initialize_call_frame, prefetch, swap_registers, Registers};
+#[link(name = "asm", kind = "static")]
+extern "C" {
+    pub fn bootstrap_green_task();
+    pub fn prefetch(data: *const usize);
+    pub fn swap_registers(out_regs: *mut Registers, in_regs: *const Registers);
+}
+
+pub use self::asm::{initialize_call_frame, Registers};
 
 #[inline]
 fn align_down(sp: *mut usize) -> *mut usize {

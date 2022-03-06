@@ -1,13 +1,7 @@
 use crate::detail::{align_down, mut_offset};
+use crate::detail::asm::{bootstrap_green_task, prefetch};
 use crate::reg_context::InitFn;
 use crate::stack::Stack;
-
-#[link(name = "asm", kind = "static")]
-extern "C" {
-    pub fn bootstrap_green_task();
-    pub fn prefetch(data: *const usize);
-    pub fn swap_registers(out_regs: *mut Registers, in_regs: *const Registers);
-}
 
 #[repr(C)]
 #[derive(Debug)]
