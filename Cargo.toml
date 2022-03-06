@@ -21,7 +21,7 @@ libc = "0.2.119"
 [workspace]
 # 只有members的依赖才是相互隔离的，因此members的子成员才算真正的模块
 members = [
-    "module1",
+    "simple",
     "module2",
     "coroutine"
 ]
