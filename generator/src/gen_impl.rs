@@ -73,7 +73,7 @@ impl<'a, A, T, const LOCAL: bool> GeneratorObj<'a, A, T, LOCAL> {
     /// memory problems. For example, a double-free may occur if the
     /// function is called twice on the same raw pointer.
     #[inline]
-    pub unsafe fn from_raw(raw: *mut usize) -> Self {
+    pub fn from_raw(raw: *mut usize) -> Self {
         GeneratorObj {
             gen: StackBox::from_raw(raw as *mut GeneratorImpl<'a, A, T>),
         }

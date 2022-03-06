@@ -74,8 +74,8 @@ impl<T> StackBox<T> {
     }
 
     /// move data into the box
-    pub(crate) unsafe fn init(&mut self, data: T) {
-        ptr::write(self.ptr.as_ptr(), data);
+    pub(crate) fn init(&mut self, data: T) {
+        unsafe { ptr::write(self.ptr.as_ptr(), data); }
     }
 
     // get the stack ptr
@@ -91,9 +91,11 @@ impl<T> StackBox<T> {
     /// memory problems. For example, a double-free may occur if the
     /// function is called twice on the same raw pointer.
     #[inline]
-    pub(crate) unsafe fn from_raw(raw: *mut T) -> Self {
-        StackBox {
-            ptr: ptr::NonNull::new_unchecked(raw),
+    pub(crate) fn from_raw(raw: *mut T) -> Self {
+        unsafe {
+            StackBox {
+                ptr: ptr::NonNull::new_unchecked(raw),
+            }
         }
     }
 
@@ -241,9 +243,8 @@ impl SysStack {
     /// It is unsafe because it is your responsibility to make sure that `top` and `bottom` are valid
     /// addresses.
     #[inline]
-    pub unsafe fn new(top: *mut c_void, bottom: *mut c_void) -> SysStack {
+    pub fn new(top: *mut c_void, bottom: *mut c_void) -> SysStack {
         debug_assert!(top >= bottom);
-
         SysStack { top, bottom }
     }
 

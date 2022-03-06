@@ -13,24 +13,26 @@ use winapi::winnt::{
 
 use super::SysStack;
 
-pub unsafe fn allocate_stack(size: usize) -> io::Result<SysStack> {
+pub fn allocate_stack(size: usize) -> io::Result<SysStack> {
     const NULL: LPVOID = 0 as LPVOID;
     const PROT: DWORD = PAGE_READWRITE;
     const TYPE: DWORD = MEM_COMMIT | MEM_RESERVE;
 
-    let ptr = VirtualAlloc(NULL, size as SIZE_T, TYPE, PROT);
+    let ptr = unsafe { VirtualAlloc(NULL, size as SIZE_T, TYPE, PROT) };
 
     if ptr == NULL {
         Err(io::Error::last_os_error())
     } else {
-        Ok(SysStack::new(
-            (ptr as usize + size) as *mut c_void,
-            ptr as *mut c_void,
-        ))
+        unsafe {
+            Ok(SysStack::new(
+                (ptr as usize + size) as *mut c_void,
+                ptr as *mut c_void,
+            ))
+        }
     }
 }
 
-pub unsafe fn protect_stack(stack: &SysStack) -> io::Result<SysStack> {
+pub fn protect_stack(stack: &SysStack) -> io::Result<SysStack> {
     const TYPE: DWORD = PAGE_READONLY | PAGE_GUARD;
 
     let page_size = page_size();
@@ -40,19 +42,19 @@ pub unsafe fn protect_stack(stack: &SysStack) -> io::Result<SysStack> {
 
     let ret = {
         let page_size = page_size as SIZE_T;
-        VirtualProtect(stack.bottom() as LPVOID, page_size, TYPE, &mut old_prot)
+        unsafe { VirtualProtect(stack.bottom() as LPVOID, page_size, TYPE, &mut old_prot) }
     };
 
     if ret == 0 {
         Err(io::Error::last_os_error())
     } else {
         let bottom = (stack.bottom() as usize + page_size) as *mut c_void;
-        Ok(SysStack::new(stack.top(), bottom))
+        unsafe { Ok(SysStack::new(stack.top(), bottom)) }
     }
 }
 
-pub unsafe fn deallocate_stack(ptr: *mut c_void, _: usize) {
-    VirtualFree(ptr as LPVOID, 0, MEM_RELEASE);
+pub fn deallocate_stack(ptr: *mut c_void, _: usize) {
+    unsafe { VirtualFree(ptr as LPVOID, 0, MEM_RELEASE); }
 }
 
 pub fn page_size() -> usize {
