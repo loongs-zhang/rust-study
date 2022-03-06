@@ -10,7 +10,7 @@ use std::panic;
 use std::thread;
 
 use crate::reg_context::RegContext;
-use crate::rt::{Context, ContextStack, Error};
+use crate::runtime::{Context, ContextStack, Error};
 use crate::scope::Scope;
 use crate::stack::{Func, Stack, StackBox};
 use crate::yield_::yield_now;

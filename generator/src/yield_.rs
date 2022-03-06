@@ -3,11 +3,8 @@
 //! generator yield implementation
 //!
 use std::any::Any;
-use std::sync::atomic;
-
-use crate::gen_impl::Generator;
 use crate::reg_context::RegContext;
-use crate::rt::{is_generator, Context, ContextStack, Error};
+use crate::runtime::{is_generator, Context, ContextStack, Error};
 
 /// it's a special return instruction that yield nothing
 /// but only terminate the generator safely

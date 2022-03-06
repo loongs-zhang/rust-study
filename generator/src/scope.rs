@@ -6,7 +6,7 @@
 use std::sync::atomic;
 
 use crate::gen_impl::Generator;
-use crate::rt::{Context, ContextStack, Error};
+use crate::runtime::{Context, ContextStack, Error};
 use crate::yield_::raw_yield_now;
 
 /// passed in scope type
