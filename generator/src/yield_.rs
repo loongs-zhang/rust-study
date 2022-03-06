@@ -64,23 +64,6 @@ fn raw_yield<T: Any>(env: &ContextStack, context: &mut Context, v: T) {
     }
 }
 
-/// yield something without catch passed in para
-#[inline]
-#[deprecated(since = "0.6.18", note = "please use `scope` version instead")]
-pub fn yield_with<T: Any>(v: T) {
-    let env = ContextStack::current();
-    let context = env.top();
-    raw_yield(&env, context, v);
-}
-
-/// get the passed in para
-#[inline]
-#[deprecated(since = "0.6.18", note = "please use `scope` version instead")]
-pub fn get_yield<A: Any>() -> Option<A> {
-    let context = ContextStack::current().top();
-    raw_get_yield(context)
-}
-
 /// get the passed in para from context
 #[inline]
 fn raw_get_yield<A: Any>(context: &mut Context) -> Option<A> {
@@ -93,37 +76,6 @@ fn raw_get_yield<A: Any>(context: &mut Context) -> Option<A> {
     }
 
     context.get_para()
-}
-
-/// yield and get the send para
-// here yield need to return a static lifetime value, which is Any required
-// this is fine, but it's totally safe that we can refer to the function block
-// since we will come back later
-#[inline]
-#[deprecated(since = "0.6.18", note = "please use `scope` version instead")]
-pub fn yield_<A: Any, T: Any>(v: T) -> Option<A> {
-    let env = ContextStack::current();
-    let context = env.top();
-    raw_yield(&env, context, v);
-    atomic::compiler_fence(atomic::Ordering::Acquire);
-    raw_get_yield(context)
-}
-
-/// `yield_from`
-#[deprecated(since = "0.6.18", note = "please use `scope` version instead")]
-pub fn yield_from<A: Any, T: Any>(mut g: Generator<A, T>) -> Option<A> {
-    let env = ContextStack::current();
-    let context = env.top();
-    let mut p = context.get_para();
-    while !g.is_done() {
-        match g.raw_send(p) {
-            None => return None,
-            Some(r) => raw_yield(&env, context, r),
-        }
-        p = context.get_para();
-    }
-    drop(g); // explicitly consume g
-    p
 }
 
 /// coroutine yield
