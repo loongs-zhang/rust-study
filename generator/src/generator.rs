@@ -12,8 +12,9 @@ use std::thread;
 use crate::reg_context::RegContext;
 use crate::runtime::{Context, ContextStack, Error};
 use crate::scope::Scope;
-use crate::stack::{Func, Stack, StackBox};
+use crate::stack::Stack;
 use crate::co_yield::yield_now;
+use crate::stack::frame::{Func, StackBox};
 
 // default stack size, in usize
 // windows has a minimal size as 0x4a8!!!!
