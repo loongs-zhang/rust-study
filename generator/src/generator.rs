@@ -13,7 +13,7 @@ use crate::reg_context::RegContext;
 use crate::runtime::{Context, ContextStack, Error};
 use crate::scope::Scope;
 use crate::stack::{Func, Stack, StackBox};
-use crate::yield_::yield_now;
+use crate::co_yield::yield_now;
 
 // default stack size, in usize
 // windows has a minimal size as 0x4a8!!!!

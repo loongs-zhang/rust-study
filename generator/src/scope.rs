@@ -5,9 +5,9 @@
 
 use std::sync::atomic;
 
-use crate::gen_impl::Generator;
+use crate::generator::Generator;
 use crate::runtime::{Context, ContextStack, Error};
-use crate::yield_::raw_yield_now;
+use crate::co_yield::raw_yield_now;
 
 /// passed in scope type
 /// it not use the context to pass data, but keep it's own data ref

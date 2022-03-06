@@ -1,4 +1,4 @@
-use crate::detail::{align_down, bootstrap_green_task, prefetch};
+use crate::register::{align_down, bootstrap_green_task, prefetch};
 use crate::reg_context::InitFn;
 use crate::stack::Stack;
 

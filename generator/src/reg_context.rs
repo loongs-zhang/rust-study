@@ -1,4 +1,4 @@
-use crate::detail::{initialize_call_frame, swap_registers, Registers};
+use crate::register::{initialize_call_frame, swap_registers, Registers};
 use crate::stack::Stack;
 
 #[derive(Debug)]

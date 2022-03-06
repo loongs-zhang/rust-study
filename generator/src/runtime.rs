@@ -76,8 +76,7 @@ impl Context {
     /// get current generator send para
     #[inline]
     pub fn get_para<A>(&mut self) -> Option<A>
-    where
-        A: Any,
+        where A: Any,
     {
         let para = unsafe {
             let para_ptr = *self.para.as_mut_ptr();
@@ -129,8 +128,7 @@ impl Context {
     /// set current generator return value
     #[inline]
     pub fn set_ret<T>(&mut self, v: T)
-    where
-        T: Any,
+        where T: Any,
     {
         let ret = unsafe {
             let ret_ptr = *self.ret.as_mut_ptr();

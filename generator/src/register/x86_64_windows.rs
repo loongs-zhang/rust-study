@@ -1,10 +1,10 @@
-use crate::detail::{align_down, bootstrap_green_task, mut_offset};
+use crate::register::{align_down, bootstrap_green_task, mut_offset};
 use crate::reg_context::InitFn;
 use crate::stack::Stack;
 
 #[inline]
 pub fn prefetch(data: *const usize) {
-    unsafe { crate::detail::prefetch(data) }
+    unsafe { crate::register::prefetch(data) }
 }
 
 // #[cfg_attr(nightly, repr(simd))]

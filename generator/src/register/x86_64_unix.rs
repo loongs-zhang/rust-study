@@ -1,5 +1,5 @@
-use crate::detail::{align_down, mut_offset};
-use crate::detail::asm::{bootstrap_green_task, prefetch};
+use crate::register::{align_down, mut_offset};
+use crate::register::asm::{bootstrap_green_task, prefetch};
 use crate::reg_context::InitFn;
 use crate::stack::Stack;
 

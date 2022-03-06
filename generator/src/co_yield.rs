@@ -43,38 +43,6 @@ pub fn raw_yield_now(env: &ContextStack, cur: &mut Context) {
     RegContext::swap(&mut cur.regs, &parent.regs);
 }
 
-/// raw yield without catch passed in para
-#[inline]
-fn raw_yield<T: Any>(env: &ContextStack, context: &mut Context, v: T) {
-    // check the context
-    if !context.is_generator() {
-        panic!("yield from none generator context");
-    }
-
-    context.set_ret(v);
-    context._ref -= 1;
-    raw_yield_now(env, context);
-
-    // here we just panic to exit the func
-    if context._ref != 1 {
-        std::panic::panic_any(Error::Cancel);
-    }
-}
-
-/// get the passed in para from context
-#[inline]
-fn raw_get_yield<A: Any>(context: &mut Context) -> Option<A> {
-    // check the context
-    if !context.is_generator() {
-        {
-            eprintln!("get yield from none generator context");
-            std::panic::panic_any(Error::ContextErr);
-        }
-    }
-
-    context.get_para()
-}
-
 /// coroutine yield
 pub fn co_yield_with<T: Any>(v: T) {
     let env = ContextStack::current();
