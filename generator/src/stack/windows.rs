@@ -5,11 +5,9 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::usize;
 use kernel32::{GetSystemInfo, VirtualAlloc, VirtualFree, VirtualProtect};
 
-use winapi::shared::basetsd::SIZE_T;
-use winapi::shared::minwindef::{DWORD, LPVOID};
-use winapi::um::memoryapi::{VirtualAlloc, VirtualFree, VirtualProtect};
-use winapi::um::sysinfoapi::GetSystemInfo;
-use winapi::um::winnt::{
+use winapi::basetsd::SIZE_T;
+use winapi::minwindef::{DWORD, LPVOID};
+use winapi::winnt::{
     MEM_COMMIT, MEM_RELEASE, MEM_RESERVE, PAGE_GUARD, PAGE_READONLY, PAGE_READWRITE,
 };
 
