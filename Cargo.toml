@@ -23,6 +23,8 @@ libc = "0.2.119"
 members = [
     "simple",
     "28c_call_rust",
+    "32hook",
+    "33use_hook",
     "coroutine",
     "generator"
 ]

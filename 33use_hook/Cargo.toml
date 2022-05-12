@@ -1,0 +1,8 @@
+[package]
+name = "use_hook"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+libc = "0.2.119"
+hook = { path = "../32hook" }

@@ -51,11 +51,14 @@ pub fn initialize_call_frame(
     regs.gpr[X21] = fptr as usize;
 
     // Aarch64 current stack frame pointer
+    // FP保存栈帧基址
     regs.gpr[FP] = sp as usize;
 
+    // LR保存函数调用者的返回地址
     regs.gpr[LR] = bootstrap_green_task as usize;
 
     // setup the init stack
     // this is prepared for the swap context
+    // SP总是指向正在运行的函数的栈帧
     regs.gpr[SP] = sp as usize;
 }
