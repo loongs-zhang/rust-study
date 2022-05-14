@@ -1,5 +1,5 @@
 fn main() {
     unsafe {
-        println!("{}", libc::abs(-1));
+        println!("{}", libc::sleep(1));
     }
 }

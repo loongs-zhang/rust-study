@@ -1,6 +1,6 @@
 //被hook的系统函数
 #[no_mangle]
-pub extern "C" fn abs(i: i32) -> i32 {
+pub extern "C" fn sleep(i: usize) -> usize {
     println!("hooked {}", i);
     i
 }
