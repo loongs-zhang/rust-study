@@ -1,29 +1,28 @@
-use std::any::Any;
-use std::mem;
+use std::{ptr};
 use std::os::raw::c_void;
 
-#[derive(Copy, Clone)]
-pub struct Fiber<F>
-    where F: FnOnce(*const c_void, Option<*mut c_void>) + Copy
-{
+pub struct Fiber<F> {
     ///用户函数
-    function: F,
+    function: Box<F>,
     ///用户参数
     param: Option<*mut c_void>,
 }
 
 impl<F> Fiber<F>
-    where F: FnOnce(*const c_void, Option<*mut c_void>) + Copy
+    where F: FnOnce(*const c_void, Option<*mut c_void>)
 {
     pub fn new(function: F, param: Option<*mut c_void>) -> Self {
         Fiber {
-            function,
+            function: Box::new(function),
             param,
         }
     }
 
     pub fn call_once(&self) {
-        (self.function)(&self as *const _ as *const c_void, self.param);
+        unsafe {
+            let fun = ptr::read(self.function.as_ref());
+            (fun)(&self as *const _ as *const c_void, self.param);
+        }
     }
 }
 
