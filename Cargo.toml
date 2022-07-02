@@ -19,6 +19,7 @@ tokio = { version = "1.16.1", features = ["full"] }
 libc = "0.2.119"
 scheduled-thread-pool = "0.2.6"
 tokio-retry = "0.3.0"
+priority-queue = "1.2.2"
 
 [workspace]
 # 只有members的依赖才是相互隔离的，因此members的子成员才算真正的模块
