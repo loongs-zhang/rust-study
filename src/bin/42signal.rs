@@ -21,5 +21,6 @@ fn main() -> thread::Result<()> {
     thread::spawn(move || unsafe {
         libc::pthread_kill(pthread, libc::SIGURG);
         println!("pthread signaled");
+        thread::sleep(Duration::from_millis(1000));
     }).join()
 }
