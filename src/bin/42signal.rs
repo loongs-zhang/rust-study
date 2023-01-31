@@ -5,6 +5,7 @@ use std::time::Duration;
 static mut RUN: bool = true;
 
 unsafe fn test() {
+    println!("{:?}", backtrace::Backtrace::new());
     println!("change flag");
     RUN = false;
 }
